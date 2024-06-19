@@ -8,7 +8,7 @@ const FilterList = () => {
         sx={{
           border: "1px solid grey",
           borderRadius: "15px",
-          width: "30vw",
+          width: { md: "30vw" },
           height: "90vh",
           marginTop: 5,
           boxShadow: 5,

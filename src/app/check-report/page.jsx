@@ -13,9 +13,9 @@ import {
 
 const CheckReport = () => {
   const sampleData = [
-    { id: 1, result: "Result 1", status: "Sent" },
-    { id: 2, result: "Result 2", status: "Spammed" },
-    { id: 3, result: "Result 3", status: "Not Sent" },
+    { id: 1, result: "9563549863", status: "Sent" },
+    { id: 2, result: "9563549863", status: "Spammed" },
+    { id: 3, result: "9563549863", status: "Not Sent" },
   ];
   return (
     <div className="flex justify-center items-center h-screen">
@@ -23,7 +23,7 @@ const CheckReport = () => {
         sx={{
           border: "2px solid #6667AB",
           borderRadius: "15px",
-          width: "30vw",
+          width: { md: "30vw" },
           padding: "20px",
           boxShadow: 5,
           backgroundColor: "#FFFFFF",
@@ -74,7 +74,7 @@ const CheckReport = () => {
           </div>
         </div>
 
-        <Table sx={{ border: "1px solid #6667AB" }}>
+        <Table sx={{ border: "1px solid rgb(59 130 246)" }}>
           <TableHead>
             <TableRow>
               <TableCell className="border-r border-b border-blue-500">
@@ -89,13 +89,15 @@ const CheckReport = () => {
           <TableBody>
             {sampleData.map((row) => (
               <TableRow key={row.id}>
-                <TableCell className="border-r border-blue-500">
+                <TableCell className="border border-blue-500">
                   {row.id}
                 </TableCell>
                 <TableCell className="border border-blue-500">
                   {row.result}
                 </TableCell>
-                <TableCell>{row.status}</TableCell>
+                <TableCell className="border border-blue-500">
+                  {row.status}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

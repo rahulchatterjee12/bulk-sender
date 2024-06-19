@@ -12,9 +12,10 @@ import React, { useState } from "react";
 
 const BulkSender = () => {
   const [account, setAccount] = useState("");
+  const [csvFile, setCsvFile] = useState(null);
   const [manualInput, setManualInput] = useState("");
   const [message, setMessage] = useState("");
-  const [file, setFile] = useState(null);
+  const [mediaFile, setMediaFile] = useState(null);
   const [scheduleFrom, setScheduleFrom] = useState("");
   const [scheduleTo, setScheduleTo] = useState("");
   const [days, setDays] = useState([]);
@@ -23,10 +24,18 @@ const BulkSender = () => {
 
   const [errors, setErrors] = useState({});
 
+  const handleCsvFileChange = (e) => {
+    setCsvFile(e.target.files[0]);
+  };
+
+  const handleMediaFileChange = (e) => {
+    setMediaFile(e.target.files[0]);
+  };
+
   const validate = () => {
     const newErrors = {};
     if (!account) newErrors.account = "Account is required";
-    if (!manualInput && !file)
+    if (!manualInput && !csvFile)
       newErrors.input = "Either manual input or file is required";
     if (!message) newErrors.message = "Message is required";
     if (!scheduleFrom || !scheduleTo)
@@ -46,9 +55,10 @@ const BulkSender = () => {
 
   const handleReset = () => {
     setAccount("");
+    setCsvFile(null);
     setManualInput("");
     setMessage("");
-    setFile(null);
+    setMediaFile(null);
     setScheduleFrom("");
     setScheduleTo("");
     setDays([]);
@@ -57,19 +67,43 @@ const BulkSender = () => {
     setErrors({});
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validate()) {
       console.log({
         account,
+        file: csvFile,
         manualInput,
         message,
-        file,
+        mediaFile: mediaFile,
         scheduleFrom,
         scheduleTo,
         days,
         weeks,
         time,
       });
+
+      const formData = new FormData();
+      formData.append("account", account);
+      formData.append("csvFile", csvFile);
+      formData.append("manualInput", manualInput);
+      formData.append("message", message);
+      formData.append("mediaFile", mediaFile);
+      formData.append("scheduleFrom", scheduleFrom);
+      formData.append("scheduleTo", scheduleTo);
+      formData.append("days", days);
+      formData.append("weeks", weeks);
+      formData.append("time", time);
+
+      try {
+        const response = await fetch("https://your-backend-url.com/api/send", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+        console.log("Success:", result);
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -79,8 +113,7 @@ const BulkSender = () => {
         sx={{
           border: "1px solid grey",
           borderRadius: "15px",
-          width: "30vw",
-          height: "90vh",
+          width: { md: "30vw", xs: "95vw" },
           marginTop: 5,
           boxShadow: 5,
         }}
@@ -113,7 +146,7 @@ const BulkSender = () => {
             <TextField
               type="file"
               size="small"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={handleCsvFileChange}
               error={!!errors.input}
             />
             <TextField
@@ -140,11 +173,12 @@ const BulkSender = () => {
           {errors.message && (
             <span className="text-red-500 text-sm">{errors.message}</span>
           )}
+          <InputLabel sx={{ font: 5, marginTop: 1 }}>Media File</InputLabel>
           <TextField
             size="small"
             type="file"
             sx={{ marginY: 1 }}
-            onChange={(e) => setFile(e.target.files[0])}
+            onChange={handleMediaFileChange}
           />
           <InputLabel sx={{ font: 5, marginTop: 2 }}>
             Add Schedule(Seconds)
@@ -222,7 +256,7 @@ const BulkSender = () => {
           {errors.time && (
             <span className="text-red-500 text-sm">{errors.time}</span>
           )}
-          <div className="flex justify-around mt-10 ">
+          <div className="flex justify-around my-5 ">
             <Button
               color="inherit"
               variant="outlined"
