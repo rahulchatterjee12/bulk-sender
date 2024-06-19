@@ -1,14 +1,78 @@
+"use client";
 import {
   Box,
+  Button,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 
 const BulkSender = () => {
+  const [account, setAccount] = useState("");
+  const [manualInput, setManualInput] = useState("");
+  const [message, setMessage] = useState("");
+  const [file, setFile] = useState(null);
+  const [scheduleFrom, setScheduleFrom] = useState("");
+  const [scheduleTo, setScheduleTo] = useState("");
+  const [days, setDays] = useState([]);
+  const [weeks, setWeeks] = useState("");
+  const [time, setTime] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+    if (!account) newErrors.account = "Account is required";
+    if (!manualInput && !file)
+      newErrors.input = "Either manual input or file is required";
+    if (!message) newErrors.message = "Message is required";
+    if (!scheduleFrom || !scheduleTo)
+      newErrors.schedule = "Schedule is required";
+    if (
+      scheduleFrom &&
+      scheduleTo &&
+      parseInt(scheduleFrom) > parseInt(scheduleTo)
+    )
+      newErrors.schedule = "From time must be less than To time";
+    if (!days.length) newErrors.days = "At least one day must be selected";
+    if (!weeks) newErrors.weeks = "Weeks are required";
+    if (!time) newErrors.time = "Time is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleReset = () => {
+    setAccount("");
+    setManualInput("");
+    setMessage("");
+    setFile(null);
+    setScheduleFrom("");
+    setScheduleTo("");
+    setDays([]);
+    setWeeks("");
+    setTime("");
+    setErrors({});
+  };
+
+  const handleSubmit = () => {
+    if (validate()) {
+      console.log({
+        account,
+        manualInput,
+        message,
+        file,
+        scheduleFrom,
+        scheduleTo,
+        days,
+        weeks,
+        time,
+      });
+    }
+  };
+
   return (
     <div className="flex justify-center">
       <Box
@@ -28,113 +92,153 @@ const BulkSender = () => {
           <FormControl
             fullWidth
             size="small"
-            sx={{
-              marginY: 1,
-            }}
+            sx={{ marginY: 1 }}
+            error={!!errors.account}
           >
-            <InputLabel id="demo-simple-select-label">
-              Select Account
-            </InputLabel>
+            <InputLabel id="account-select-label">Select Account</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
+              labelId="account-select-label"
+              id="account-select"
+              value={account}
               label="Select Account"
+              onChange={(e) => setAccount(e.target.value)}
             >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
+              <MenuItem value={"1234567890"}>+91 123456 7890</MenuItem>
             </Select>
+            {errors.account && (
+              <span className="text-red-500 text-sm">{errors.account}</span>
+            )}
           </FormControl>
           <div className="my-1 flex justify-between gap-2">
-            <FormControl size="small" fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Select Account
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Select Account"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField size="small" label="Add Manually" />
+            <TextField
+              type="file"
+              size="small"
+              onChange={(e) => setFile(e.target.files[0])}
+              error={!!errors.input}
+            />
+            <TextField
+              size="small"
+              label="Add Manually"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              error={!!errors.input}
+            />
           </div>
+          {errors.input && (
+            <span className="text-red-500 text-sm">{errors.input}</span>
+          )}
           <TextField
-            size="small"
-            sx={{
-              marginY: 1,
-            }}
-          />
-          <TextField
-            label="Message"
+            label="Type Message"
             multiline
             rows={4}
-            defaultValue="Type Message"
-            sx={{
-              marginY: 1,
-            }}
+            sx={{ marginY: 1 }}
             size="small"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            error={!!errors.message}
           />
+          {errors.message && (
+            <span className="text-red-500 text-sm">{errors.message}</span>
+          )}
           <TextField
             size="small"
             type="file"
-            sx={{
-              marginY: 1,
-            }}
+            sx={{ marginY: 1 }}
+            onChange={(e) => setFile(e.target.files[0])}
           />
-          <InputLabel
-            sx={{
-              font: 10,
-            }}
-          >
+          <InputLabel sx={{ font: 5, marginTop: 2 }}>
             Add Schedule(Seconds)
           </InputLabel>
           <div className="my-1 flex justify-between items-center gap-1">
-            <TextField size="small" />
+            <TextField
+              size="small"
+              type="number"
+              value={scheduleFrom}
+              onChange={(e) => setScheduleFrom(e.target.value)}
+              error={!!errors.schedule}
+            />
             To
-            <TextField size="small" />
+            <TextField
+              size="small"
+              type="number"
+              value={scheduleTo}
+              onChange={(e) => setScheduleTo(e.target.value)}
+              error={!!errors.schedule}
+            />
           </div>
+          {errors.schedule && (
+            <span className="text-red-500 text-sm">{errors.schedule}</span>
+          )}
           <FormControl
             size="small"
             fullWidth
-            sx={{
-              marginY: 1,
-            }}
+            sx={{ marginY: 1 }}
+            error={!!errors.days}
           >
-            <InputLabel id="demo-simple-select-label">Days</InputLabel>
+            <InputLabel id="days-select-label">Days</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              label="Days"
+              labelId="days-select-label"
+              id="days-select"
               multiple
-              value={[]}
+              value={days}
+              label="Days"
+              onChange={(e) => setDays(e.target.value)}
             >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
+              <MenuItem value="sunday">Sunday</MenuItem>
+              <MenuItem value="monday">Monday</MenuItem>
+              <MenuItem value="tuesday">Tuesday</MenuItem>
+              <MenuItem value="wednesday">Wednesday</MenuItem>
+              <MenuItem value="thursday">Thursday</MenuItem>
+              <MenuItem value="friday">Friday</MenuItem>
+              <MenuItem value="saturday">Saturday</MenuItem>
             </Select>
+            {errors.days && (
+              <span className="text-red-500 text-sm">{errors.days}</span>
+            )}
           </FormControl>
-
-          <div className="flex justify-between gap-2">
+          <div className="flex justify-between gap-2 items-center">
             <TextField
               size="small"
               type="number"
               label="Continue For(weeks)"
-              sx={{
-                marginY: 1,
-              }}
+              sx={{ marginY: 1 }}
+              value={weeks}
+              onChange={(e) => setWeeks(e.target.value)}
+              error={!!errors.weeks}
             />
+            <InputLabel sx={{ font: 10 }}>Schedule Time:</InputLabel>
             <TextField
               size="small"
-              label="Schedule Time"
               type="time"
-              sx={{
-                marginY: 1,
-              }}
+              sx={{ marginY: 1 }}
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              error={!!errors.time}
             />
+          </div>
+          {errors.weeks && (
+            <span className="text-red-500 text-sm">{errors.weeks}</span>
+          )}
+          {errors.time && (
+            <span className="text-red-500 text-sm">{errors.time}</span>
+          )}
+          <div className="flex justify-around mt-10 ">
+            <Button
+              color="inherit"
+              variant="outlined"
+              size="small"
+              onClick={handleReset}
+            >
+              Reset All
+            </Button>
+            <Button
+              color="inherit"
+              variant="outlined"
+              size="small"
+              onClick={handleSubmit}
+            >
+              Send Messages
+            </Button>
           </div>
         </div>
       </Box>
