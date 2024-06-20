@@ -42,10 +42,11 @@ const SavedList = () => {
             border: "1px solid grey",
             borderRadius: "15px",
             width: "90%",
-            height: "65%",
+            minHeight: "70%",
             marginTop: 1,
             boxShadow: 5,
             marginX: "auto",
+            overflowY: "scroll",
           }}
         >
           {sampleData &&

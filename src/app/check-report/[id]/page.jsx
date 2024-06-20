@@ -26,7 +26,7 @@ const CheckReport = () => {
       }).then((response) => {
         response.json().then((result) => {
           setSampleData(result);
-          setPhoneNumbers(result.phone_numbers);
+          setPhoneNumbers(result?.phone_numbers);
           const counts = result.phone_numbers.reduce((acc, item) => {
             acc[item.status] = (acc[item.status] || 0) + 1;
             return acc;
@@ -109,19 +109,20 @@ const CheckReport = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {phoneNumbers.map((row, index) => (
-              <TableRow key={row.id}>
-                <TableCell className="border-r border-blue-500">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="border border-blue-500">
-                  {row.number}
-                </TableCell>
-                <TableCell className="border border-blue-500">
-                  {row.status}
-                </TableCell>
-              </TableRow>
-            ))}
+            {phoneNumbers &&
+              phoneNumbers.map((row, index) => (
+                <TableRow key={row.id}>
+                  <TableCell className="border-r border-blue-500">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="border border-blue-500">
+                    {row.number}
+                  </TableCell>
+                  <TableCell className="border border-blue-500">
+                    {row.status}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
 
