@@ -12,21 +12,30 @@ import React, { useState } from "react";
 
 const BulkSender = () => {
   const [account, setAccount] = useState("");
+  const [csvFile, setCsvFile] = useState(null);
   const [manualInput, setManualInput] = useState("");
   const [message, setMessage] = useState("");
-  const [file, setFile] = useState(null);
+  const [additionalFile, setAdditionalFile] = useState(null);
   const [scheduleFrom, setScheduleFrom] = useState("");
   const [scheduleTo, setScheduleTo] = useState("");
   const [days, setDays] = useState([]);
   const [weeks, setWeeks] = useState("");
   const [time, setTime] = useState("");
 
+  const handleCsvFileChange = (e) => {
+    setCsvFile(e.target.files[0]);
+  };
+
+  const handleAdditionalFileChange = (e) => {
+    setAdditionalFile(e.target.files[0]);
+  };
+
   const [errors, setErrors] = useState({});
 
   const validate = () => {
     const newErrors = {};
     if (!account) newErrors.account = "Account is required";
-    if (!manualInput && !file)
+    if (!manualInput && !csvFile)
       newErrors.input = "Either manual input or file is required";
     if (!message) newErrors.message = "Message is required";
     if (!scheduleFrom || !scheduleTo)
@@ -46,9 +55,10 @@ const BulkSender = () => {
 
   const handleReset = () => {
     setAccount("");
+    setCsvFile(null);
     setManualInput("");
     setMessage("");
-    setFile(null);
+    setAdditionalFile(null);
     setScheduleFrom("");
     setScheduleTo("");
     setDays([]);
@@ -57,13 +67,40 @@ const BulkSender = () => {
     setErrors({});
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validate()) {
+      const formData = new FormData();
+
+      formData.append("account", account);
+      formData.append("manual_input", manualInput);
+      formData.append("message", message);
+      formData.append("csv_file", csvFile);
+      formData.append("additional_file", additionalFile);
+      formData.append("schedule_from", scheduleFrom);
+      formData.append("schedule_to", scheduleTo);
+      formData.append("days", JSON.stringify(days));
+      formData.append("weeks", weeks);
+      formData.append("time", time);
+
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/whatsapp/create-schedule/",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const result = await response.json();
+        console.log("Success:", result);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
       console.log({
         account,
         manualInput,
         message,
-        file,
+        csvFile,
         scheduleFrom,
         scheduleTo,
         days,
@@ -79,8 +116,7 @@ const BulkSender = () => {
         sx={{
           border: "1px solid grey",
           borderRadius: "15px",
-          width: "30vw",
-          height: "90vh",
+          width: { md: "30vw", xs: "90vw" },
           marginTop: 5,
           boxShadow: 5,
         }}
@@ -113,7 +149,7 @@ const BulkSender = () => {
             <TextField
               type="file"
               size="small"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={handleCsvFileChange}
               error={!!errors.input}
             />
             <TextField
@@ -144,12 +180,12 @@ const BulkSender = () => {
             size="small"
             type="file"
             sx={{ marginY: 1 }}
-            onChange={(e) => setFile(e.target.files[0])}
+            onChange={handleAdditionalFileChange}
           />
           <InputLabel sx={{ font: 5, marginTop: 2 }}>
             Add Schedule(Seconds)
           </InputLabel>
-          <div className="my-1 flex justify-between items-center gap-1">
+          <div className="my-1 flex justify-between items-center gap-2">
             <TextField
               size="small"
               type="number"
@@ -222,7 +258,7 @@ const BulkSender = () => {
           {errors.time && (
             <span className="text-red-500 text-sm">{errors.time}</span>
           )}
-          <div className="flex justify-around mt-10 ">
+          <div className="flex justify-around my-5 ">
             <Button
               color="inherit"
               variant="outlined"

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,20 +11,41 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { usePathname } from "next/navigation";
 
 const CheckReport = () => {
-  const sampleData = [
-    { id: 1, result: "Result 1", status: "Sent" },
-    { id: 2, result: "Result 2", status: "Spammed" },
-    { id: 3, result: "Result 3", status: "Not Sent" },
-  ];
+  const [sampleData, setSampleData] = useState();
+  const [phoneNumbers, setPhoneNumbers] = useState([]);
+  const [counts, setCounts] = useState();
+
+  const id = usePathname().split("/")[2];
+  useEffect(() => {
+    try {
+      fetch(`http://127.0.0.1:8000/whatsapp/schedule/${id}`, {
+        method: "get",
+      }).then((response) => {
+        response.json().then((result) => {
+          setSampleData(result);
+          setPhoneNumbers(result.phone_numbers);
+          const counts = result.phone_numbers.reduce((acc, item) => {
+            acc[item.status] = (acc[item.status] || 0) + 1;
+            return acc;
+          }, {});
+          setCounts(counts);
+        });
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
+
   return (
     <div className="flex justify-center items-center h-screen">
       <Box
         sx={{
           border: "2px solid #6667AB",
           borderRadius: "15px",
-          width: "30vw",
+          width: { md: "30vw", xs: "95vw" },
           padding: "20px",
           boxShadow: 5,
           backgroundColor: "#FFFFFF",
@@ -40,7 +62,7 @@ const CheckReport = () => {
           <div className="flex items-center justify-between mb-2 gap-3">
             <LinearProgress
               variant="determinate"
-              value={99}
+              value={counts?.send ? counts.send : 0}
               className="w-3/4 mr-2 bg-gray-300"
             />
             <Typography className="w-12 text-right text-gray-800">
@@ -51,7 +73,7 @@ const CheckReport = () => {
           <div className="flex items-center justify-between mb-2 gap-3">
             <LinearProgress
               variant="determinate"
-              value={0}
+              value={counts?.spammed ? counts.spammed : 0}
               className="w-3/4 mr-2 bg-gray-300"
             />
             <Typography className="w-12 text-right text-gray-800">
@@ -62,7 +84,7 @@ const CheckReport = () => {
           <div className="flex items-center justify-between gap-3">
             <LinearProgress
               variant="determinate"
-              value={0}
+              value={counts?.not_send ? counts.not_send : 0}
               className="w-3/4 mr-2 bg-gray-300"
             />
             <Typography className="w-12 text-right text-gray-800">
@@ -87,15 +109,17 @@ const CheckReport = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sampleData.map((row) => (
+            {phoneNumbers.map((row, index) => (
               <TableRow key={row.id}>
                 <TableCell className="border-r border-blue-500">
-                  {row.id}
+                  {index + 1}
                 </TableCell>
                 <TableCell className="border border-blue-500">
-                  {row.result}
+                  {row.number}
                 </TableCell>
-                <TableCell>{row.status}</TableCell>
+                <TableCell className="border border-blue-500">
+                  {row.status}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

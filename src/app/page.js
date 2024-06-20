@@ -13,8 +13,8 @@ export default function Home() {
         sx={{
           border: "1px solid grey",
           borderRadius: "15px",
-          width: "30vw",
-          height: "80vh",
+          width: { md: "30vw", xs: "95vw" },
+          minHeight: "80vh",
           marginTop: 5,
           boxShadow: 5,
         }}
@@ -32,7 +32,7 @@ export default function Home() {
             Send Bulk Message
           </Button>
           <Button
-            onClick={() => router.push("/check-report")}
+            onClick={() => router.push("/saved-list")}
             variant="outlined"
             color="inherit"
           >
